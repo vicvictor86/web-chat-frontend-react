@@ -2,14 +2,14 @@ import React, { FormEvent, useState, useEffect } from "react";
 
 import { Groups, SideBar, Container, TopBarGroup, Button } from "./styles";
 
-import { FiAlignJustify, FiSearch, FiMoreVertical } from "react-icons/fi";
+import { FiMenu, FiSearch, FiMoreVertical } from "react-icons/fi";
 
 export const Chat: React.FC = () => (
   <Container>
     <SideBar>
       <div className="content-search-bar">
         <Button>
-          <FiAlignJustify size={24}/>
+          <FiMenu size={24}/>
         </Button>
         <div className="search-bar">
           <FiSearch size={24} className="fi-search" />

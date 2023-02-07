@@ -19,9 +19,10 @@ export const SideBar = styled.section`
     .search-bar {
       display: flex;
       align-items: center;
-      margin: 0 0.8rem;
+      margin: 0 1.6rem;
       background-color: #F5F5F5;
-      padding: 0.8rem 2.6rem 0.8rem 1.8rem;
+      width: 100%;
+      padding: 0.8rem 1.8rem;
       border-radius: 1.6rem;
 
       .fi-search {
