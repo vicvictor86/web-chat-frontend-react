@@ -4,12 +4,20 @@ export const Container = styled.div`
   width: 100vw;
   height: 100vh;
   display: flex;
+
+  div.chat-group {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
 `;
 
 export const SideBar = styled.section`
   background-color: #ffffff;
   width: 52rem;
-  height: 100%;
+  height: 100vh;
+  border-right: thin solid #70799166;
 
   div.content-search-bar {
     padding: 0.8rem 0;
@@ -109,9 +117,9 @@ export const Groups = styled.div`
 export const TopBarGroup = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: start;
   width: 100%;
-  border-left: thin solid #707991;
-  padding: 0.8rem 1.8rem 0 2.8rem;
+  padding: 0.8rem 1.8rem 1.2rem 2.8rem;
 
   div.avatar {
     img {
@@ -142,14 +150,9 @@ export const TopBarGroup = styled.div`
   }
 
   div.content-group-features{
+    margin-top: 1rem;
     & > button:first-child {
       margin-right: 2.4rem;
     }
   }
-`;
-
-export const Button = styled.button`
-  background: none;
-  border: none;
-  color: #707991;
 `;
