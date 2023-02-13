@@ -117,7 +117,7 @@ export const Groups = styled.div`
 export const TopBarGroup = styled.div`
   display: flex;
   justify-content: space-between;
-  align-items: start;
+  align-items: center;
   width: 100%;
   padding: 0.8rem 1.8rem 1.2rem 2.8rem;
 
@@ -150,7 +150,6 @@ export const TopBarGroup = styled.div`
   }
 
   div.content-group-features{
-    margin-top: 1rem;
     & > button:first-child {
       margin-right: 2.4rem;
     }

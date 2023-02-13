@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { FiMenu, FiSearch, FiMoreVertical, FiCheck } from "react-icons/fi";
+import { FiMenu, FiSearch, FiMoreVertical } from "react-icons/fi";
 import { HiOutlineEmojiHappy } from "react-icons/hi";
 import { IoMdSend } from "react-icons/io";
 
 import { Groups, SideBar, Container, TopBarGroup } from "./styles";
 
 import { InputWithButtons } from "../../components/Input";
+import { Button } from "../../components/Button";
+import { Message } from "../../components/Message";
+
+import {
+  Background,
+  Messages,
+  ConversationDate,
+} from "../../components/Message/styles";
 
 import { api } from "../../services/api";
-import { Button } from "../../components/Button";
-import { Messages } from "../../components/Message/styles";
-import { ConversationDate } from "../../components/Message/styles";
-import { Message } from "../../components/Message";
 
 interface Room {
   id: string;
@@ -89,28 +93,43 @@ export const Chat: React.FC = () => {
           </div>
         </TopBarGroup>
 
-        <Messages messageOwnerId="1" userId="1">
-          <ConversationDate>
-            <p>Today</p>
-          </ConversationDate>
+        <Background>
+          <Messages>
+            <div className="content-message">
+              <ConversationDate>
+                <p>Today</p>
+              </ConversationDate>
 
-          <Message messageOwnerId="1" userId="1" messageTime="22:40">
-            FalaOMG 😲 do you remember what you did last night at the work night
-            out?
-          </Message>
+              <Message messageOwnerId="1" userId="2" messageTime="22:40">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+              </Message>
 
-          <Message messageOwnerId="1" userId="" messageTime="22:40">
-            Fala
-          </Message>
-        </Messages>
+              <Message messageOwnerId="1" userId="1" messageTime="22:42">
+                Duis imperdiet bibendum massa vitae gravida. Pellentesque tempor
+                tincidunt leo, id vulputate odio convallis non.
+              </Message>
 
-        {/* <div className="input-message" >
-            <InputWithButtons
-              leftIcon={HiOutlineEmojiHappy}
-              rightIcon={IoMdSend}
-              placeholder="Message"
-            />
-          </div> */}
+              <Message messageOwnerId="1" userId="2" messageTime="22:42">
+                ed est ipsum, tempus eu magna vel, finibus volutpat purus. Nam
+                at ante eget mi varius ornare sit amet et justo. Nullam dui
+                ante, aliquam vitae feugiat non, venenatis eget libero
+              </Message>
+
+              <Message messageOwnerId="1" userId="1" messageTime="22:43">
+                Quisque vitae blandit augue. Aliquam a lectus tristique,
+                pharetra erat eu, vehicula mauris.
+              </Message>
+            </div>
+
+            <div className="input-message">
+              <InputWithButtons
+                leftIcon={HiOutlineEmojiHappy}
+                rightIcon={IoMdSend}
+                placeholder="Message"
+              />
+            </div>
+          </Messages>
+        </Background>
       </div>
     </Container>
   );

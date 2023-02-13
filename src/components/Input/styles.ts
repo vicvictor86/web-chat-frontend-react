@@ -3,8 +3,7 @@ import styled from "styled-components";
 export const Container = styled.div`
   display: flex;
   align-items: center;
-  width: 85%;
-  max-height: 56px;
+  max-height: 5.6rem;
   padding: 1.6rem;
   background-color: #FFFFFF;
   border-radius: 1.2rem;
