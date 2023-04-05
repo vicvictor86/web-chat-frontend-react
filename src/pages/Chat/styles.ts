@@ -18,6 +18,7 @@ export const SideBar = styled.section`
   width: 52rem;
   height: 100vh;
   border-right: thin solid #70799166;
+  overflow-y: auto;
 
   div.content-search-bar {
     padding: 0.8rem 0;
@@ -110,7 +111,7 @@ export const Groups = styled.div`
   }
 
   &:not(:last-child){
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.1rem;
   } 
 `;
 

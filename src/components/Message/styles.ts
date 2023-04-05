@@ -6,7 +6,8 @@ interface SendProps {
 }
 
 export const Background = styled.div`
-  height: 100vh;
+  height: 100%;
+  overflow-y: auto;
   background-color: #8BABD8;
 `;
 
@@ -16,11 +17,11 @@ export const Messages = styled.div`
   flex-direction: column;
   justify-content: space-between;
   margin: 0 6.2rem;
-
-  div.input-message {
-    margin: 0.8rem 0 2.4rem 0;
-  }
 `;
+
+export const InputMessages = styled.div`
+  margin: 0 0 0 0;
+`
 
 export const Container = styled.div<SendProps>`
   display: flex;
@@ -37,6 +38,7 @@ export const BackgroundMessage = styled.div<SendProps>`
   padding: 0.8rem 1.2rem;
   border-radius: 0.8rem;
   margin: 0.8rem 0;
+  overflow: auto;
 
   ${(props) => props.userId === props.messageOwnerId && css`
       background-color: #78E378;
@@ -62,12 +64,17 @@ export const MessageContent = styled.div<SendProps>`
     align-items: end;
     justify-content: center;
     gap: 0.4rem;
+    margin-top: 0.8rem;
 
     ${(props) => props.userId === props.messageOwnerId && css`
-      color: #FFFFFF;
-    `
-  };
+        color: #FFFFFF;
+      `
+    };
   }
+
+  &:last-child {
+    margin-bottom: 1.6rem;
+  } 
 `;
 
 export const ConversationDate = styled.div`

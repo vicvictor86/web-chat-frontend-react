@@ -9,7 +9,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const Input: React.FC<InputProps> = ({ leftIcon: LeftIcon, rightIcon: RightIcon, ...rest}) => (
-  <Container>
+  <Container leftIcon={LeftIcon} rightIcon={RightIcon}>
     {LeftIcon && <LeftIcon size={24}/>}
     <input type="text" {...rest} />
     {RightIcon && <RightIcon size={24}/>}
@@ -17,7 +17,7 @@ export const Input: React.FC<InputProps> = ({ leftIcon: LeftIcon, rightIcon: Rig
 );
 
 export const InputWithButtons: React.FC<InputProps> = ({ leftIcon: LeftIcon, rightIcon: RightIcon, ...rest}) => (
-  <Container>
+  <Container leftIcon={LeftIcon} rightIcon={RightIcon}>
     {LeftIcon && <Button icon={LeftIcon}/>}
     <input type="text" {...rest} />
     {RightIcon && <Button icon={RightIcon}/>}

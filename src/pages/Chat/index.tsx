@@ -13,6 +13,7 @@ import {
   Background,
   Messages,
   ConversationDate,
+  InputMessages,
 } from "../../components/Message/styles";
 
 import { api } from "../../services/api";
@@ -119,17 +120,66 @@ export const Chat: React.FC = () => {
                 Quisque vitae blandit augue. Aliquam a lectus tristique,
                 pharetra erat eu, vehicula mauris.
               </Message>
-            </div>
 
-            <div className="input-message">
-              <InputWithButtons
-                leftIcon={HiOutlineEmojiHappy}
-                rightIcon={IoMdSend}
-                placeholder="Message"
-              />
+              <Message messageOwnerId="1" userId="1" messageTime="22:43">
+                Quisque vitae blandit augue. Aliquam a lectus tristique,
+                pharetra erat eu, vehicula mauris.
+              </Message>
+
+              <Message messageOwnerId="1" userId="1" messageTime="22:43">
+                Quisque vitae blandit augue. Aliquam a lectus tristique,
+                pharetra erat eu, vehicula mauris.
+              </Message>
+
+              <Message messageOwnerId="1" userId="1" messageTime="22:43">
+                Quisque vitae blandit augue. Aliquam a lectus tristique,
+                pharetra erat eu, vehicula mauris.
+              </Message>
+
+              <Message messageOwnerId="1" userId="1" messageTime="22:43">
+                Quisque vitae blandit augue. Aliquam a lectus tristique,
+                pharetra erat eu, vehicula mauris.
+              </Message>
+
+              <Message messageOwnerId="1" userId="1" messageTime="22:43">
+                Quisque vitae blandit augue. Aliquam a lectus tristique,
+                pharetra erat eu, vehicula mauris.
+              </Message>
+
+              <Message messageOwnerId="1" userId="1" messageTime="22:43">
+                Quisque vitae blandit augue. Aliquam a lectus tristique,
+                pharetra erat eu, vehicula mauris.
+              </Message>
+
+              <Message messageOwnerId="1" userId="1" messageTime="22:43">
+                Quisque vitae blandit augue. Aliquam a lectus tristique,
+                pharetra erat eu, vehicula mauris.
+              </Message>
+
+              <Message messageOwnerId="1" userId="1" messageTime="22:43">
+                Quisque vitae blandit augue. Aliquam a lectus tristique,
+                pharetra erat eu, vehicula mauris.
+              </Message>
+
+              <Message messageOwnerId="1" userId="1" messageTime="22:43">
+                Quisque vitae blandit augue. Aliquam a lectus tristique,
+                pharetra erat eu, vehicula mauris.
+              </Message>
+
+              <Message messageOwnerId="1" userId="1" messageTime="22:43">
+                Quisque vitae blandit augue. Aliquam a lectus tristique,
+                pharetra erat eu, vehicula mauris.
+              </Message>
             </div>
           </Messages>
         </Background>
+        <InputMessages>
+          <InputWithButtons
+            leftIcon={HiOutlineEmojiHappy}
+            rightIcon={IoMdSend}
+            placeholder="Message"
+          />
+        </InputMessages>
       </div>
     </Container>
   );
