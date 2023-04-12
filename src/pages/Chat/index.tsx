@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { FiMenu, FiSearch, FiMoreVertical } from "react-icons/fi";
 import { HiOutlineEmojiHappy } from "react-icons/hi";
 import { IoMdSend } from "react-icons/io";
-
-import { Groups, SideBar, Container, TopBarGroup } from "./styles";
+import { Socket } from "socket.io-client";
 
 import { InputWithButtons } from "../../components/Input";
-import { Button } from "../../components/Button";
 import { Message } from "../../components/Message";
+import { Button } from "../../components/Button";
+
+import { api } from "../../services/api";
+
+import { useAuth } from "../../hooks/Auth";
 
 import { socket } from "../../socket";
 
@@ -17,17 +20,14 @@ import {
   ConversationDate,
   InputMessages,
 } from "../../components/Message/styles";
-
-import { api } from "../../services/api";
-import { Socket } from "socket.io-client";
-import { useAuth, UserProps } from "../../hooks/Auth";
+import { Groups, SideBar, Container, TopBarGroup } from "./styles";
 
 interface Room {
   id: string;
   name: string;
-  user_limit: number;
-  is_private: boolean;
-  user_quantity: number;
+  userLimit: number;
+  isPrivate: boolean;
+  userQuantity: number;
 }
 
 interface SelectRoomProps {
@@ -39,12 +39,12 @@ interface SelectRoomProps {
 interface SelectedRoomResponse {
   room: Room;
 
-  is_on_chat: boolean;
+  isOnChat: boolean;
 }
 
 interface MessageProps {
   id: string;
-  user_id: string;
+  userId: string;
   room: Room;
   text: string;
   created_at: string;
@@ -64,33 +64,57 @@ export const Chat: React.FC = () => {
   });
 
   const selectRoom = ({ roomId, userId, socket }: SelectRoomProps) => {
-    socket.emit('select_room', {
-      user_id: userId,
-      room_id: roomId,
-    }, ({room, is_on_chat}: SelectedRoomResponse) => {
-      setSelectedRoom(room);
+    socket.emit(
+      "select_room",
+      {
+        userId,
+        roomId,
+      },
+      ({ room, isOnChat }: SelectedRoomResponse) => {
+        setSelectedRoom(room);
 
-      previousMessage(roomId);
-    });
-  }
+        previousMessage(roomId);
+      }
+    );
+  };
+
+  const sendMessageHandler = useCallback(() => {
+    const messageInput = document.getElementById(
+      "message-input"
+    ) as HTMLInputElement | null;
+
+    if (messageInput) {
+      const text = messageInput.value;
+      if (text !== "") {
+        socket.emit("message", {
+          userId: user.id,
+          text,
+          roomName: selectedRoom?.name,
+        });
+
+        messageInput.value = "";
+      }
+    }
+  }, [selectedRoom?.name, user.id]);
+
+  // socket.on("message", (message: MessageProps) => {
+  //   setMessages([...messages, message]);
+  // });
 
   const previousMessage = (roomId: string) => {
     api.get(`messages/${roomId}`).then((response) => {
-      console.log(response);
-
-      const messages = response.data.map((message: MessageProps) => {
+      const messages = response.data.map(({id, userId, text, created_at}: MessageProps) => {
         return {
-          id: message.id,
-          user_id: message.user_id,
-          text: message.text,
-          created_at: message.created_at.substring(12, 16),
-        } as MessageProps
+          id,
+          userId,
+          text,
+          created_at: created_at.substring(12, 16),
+        } as MessageProps;
       });
 
       setMessages(messages);
-    })
-
-  } 
+    });
+  };
 
   return (
     <Container>
@@ -107,7 +131,9 @@ export const Chat: React.FC = () => {
           <Groups
             key={room.id}
             groupId={room.id}
-            onClick={() => selectRoom({roomId: room.id, userId: user.id, socket })}
+            onClick={() =>
+              selectRoom({ roomId: room.id, userId: user.id, socket })
+            }
           >
             <div className="left-icons">
               <div className="avatar">
@@ -132,7 +158,7 @@ export const Chat: React.FC = () => {
           </Groups>
         ))}
       </SideBar>
-      
+
       {selectedRoom && (
         <div className="chat-group">
           <TopBarGroup>
@@ -164,7 +190,11 @@ export const Chat: React.FC = () => {
                 </ConversationDate>
 
                 {messages.map((message) => (
-                  <Message messageOwnerId={message.user_id} userId={user.id} messageTime={message.created_at}>
+                  <Message
+                    messageOwnerId={message.userId}
+                    userId={user.id}
+                    messageTime={message.created_at}
+                  >
                     {message.text}
                   </Message>
                 ))}
@@ -173,8 +203,10 @@ export const Chat: React.FC = () => {
           </Background>
           <InputMessages>
             <InputWithButtons
+              id="message-input"
               leftIcon={HiOutlineEmojiHappy}
               rightIcon={IoMdSend}
+              onClickRightIcon={sendMessageHandler}
               placeholder="Message"
             />
           </InputMessages>

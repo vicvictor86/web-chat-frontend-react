@@ -6,6 +6,8 @@ import { Button } from '../Button/index';
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   leftIcon?: React.ComponentType<IconBaseProps>;
   rightIcon?: React.ComponentType<IconBaseProps>;
+  onClickLeftIcon?: (data: any) => any;
+  onClickRightIcon?: (data: any) => any;
 }
 
 const InputBase: ForwardRefRenderFunction<HTMLInputElement, InputProps> = ({ leftIcon: LeftIcon, rightIcon: RightIcon, ...rest}, ref) => (
@@ -18,10 +20,12 @@ const InputBase: ForwardRefRenderFunction<HTMLInputElement, InputProps> = ({ lef
 
 export const Input = forwardRef(InputBase);
 
-export const InputWithButtons: React.FC<InputProps> = ({ leftIcon: LeftIcon, rightIcon: RightIcon, ...rest}) => (
+const InputWithButtonsBase: ForwardRefRenderFunction<HTMLInputElement, InputProps> = ({ leftIcon: LeftIcon, rightIcon: RightIcon, onClickLeftIcon: OnClickLeftIcon, onClickRightIcon: OnClickRightIcon,...rest}, ref) => (
   <Container leftIcon={LeftIcon} rightIcon={RightIcon}>
-    {LeftIcon && <Button icon={LeftIcon}/>}
-    <input type="text" {...rest} />
-    {RightIcon && <Button icon={RightIcon}/>}
+    {LeftIcon && <Button icon={LeftIcon} onClick={OnClickLeftIcon}/>}
+    <input ref={ref} type="text" {...rest} />
+    {RightIcon && <Button icon={RightIcon} onClick={OnClickRightIcon}/>}
   </Container>
 );
+
+export const InputWithButtons = forwardRef(InputWithButtonsBase);
