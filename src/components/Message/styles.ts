@@ -71,10 +71,6 @@ export const MessageContent = styled.div<SendProps>`
       `
     };
   }
-
-  &:last-child {
-    margin-bottom: 1.6rem;
-  } 
 `;
 
 export const ConversationDate = styled.div`

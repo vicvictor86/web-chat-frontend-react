@@ -1,4 +1,4 @@
-import React, { InputHTMLAttributes } from "react";
+import React, { InputHTMLAttributes, forwardRef, ForwardRefRenderFunction } from "react";
 import { IconBaseProps } from "react-icons/lib";
 import { Container } from "./styles";
 import { Button } from '../Button/index';
@@ -8,13 +8,15 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   rightIcon?: React.ComponentType<IconBaseProps>;
 }
 
-export const Input: React.FC<InputProps> = ({ leftIcon: LeftIcon, rightIcon: RightIcon, ...rest}) => (
+const InputBase: ForwardRefRenderFunction<HTMLInputElement, InputProps> = ({ leftIcon: LeftIcon, rightIcon: RightIcon, ...rest}, ref) => (
   <Container leftIcon={LeftIcon} rightIcon={RightIcon}>
     {LeftIcon && <LeftIcon size={24}/>}
-    <input type="text" {...rest} />
+    <input ref={ref} type="text" {...rest} />
     {RightIcon && <RightIcon size={24}/>}
   </Container>
 );
+
+export const Input = forwardRef(InputBase);
 
 export const InputWithButtons: React.FC<InputProps> = ({ leftIcon: LeftIcon, rightIcon: RightIcon, ...rest}) => (
   <Container leftIcon={LeftIcon} rightIcon={RightIcon}>

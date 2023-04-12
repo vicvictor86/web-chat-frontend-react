@@ -1,5 +1,9 @@
 import styled from 'styled-components';
 
+interface GroupsProps {
+  groupId: string;
+}
+
 export const Container = styled.div`
   width: 100vw;
   height: 100vh;
@@ -49,11 +53,12 @@ export const SideBar = styled.section`
   }
 `;
 
-export const Groups = styled.div`
+export const Groups = styled.div<GroupsProps>`
   display: flex;
   padding: 1.6rem;
   background: #ffffff;
   justify-content: space-between;
+  transition: background-color 0.2s;
 
   img {
     width: 4rem;
@@ -113,6 +118,11 @@ export const Groups = styled.div`
   &:not(:last-child){
     margin-bottom: 0.1rem;
   } 
+
+  :hover {
+    background: #F5F5F5;
+    cursor: pointer;
+  }
 `;
 
 export const TopBarGroup = styled.div`

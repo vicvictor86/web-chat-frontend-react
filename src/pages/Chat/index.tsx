@@ -9,6 +9,8 @@ import { InputWithButtons } from "../../components/Input";
 import { Button } from "../../components/Button";
 import { Message } from "../../components/Message";
 
+import { socket } from "../../socket";
+
 import {
   Background,
   Messages,
@@ -17,6 +19,8 @@ import {
 } from "../../components/Message/styles";
 
 import { api } from "../../services/api";
+import { Socket } from "socket.io-client";
+import { useAuth, UserProps } from "../../hooks/Auth";
 
 interface Room {
   id: string;
@@ -26,14 +30,67 @@ interface Room {
   user_quantity: number;
 }
 
+interface SelectRoomProps {
+  roomId: string;
+  userId: string;
+  socket: Socket;
+}
+
+interface SelectedRoomResponse {
+  room: Room;
+
+  is_on_chat: boolean;
+}
+
+interface MessageProps {
+  id: string;
+  user_id: string;
+  room: Room;
+  text: string;
+  created_at: string;
+}
+
 export const Chat: React.FC = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
+  const [selectedRoom, setSelectedRoom] = useState<Room | undefined>();
+  const [messages, setMessages] = useState<MessageProps[]>([]);
+
+  const { user } = useAuth();
 
   useEffect(() => {
     api.get("rooms/").then((response) => {
       setRooms(response.data);
     });
   });
+
+  const selectRoom = ({ roomId, userId, socket }: SelectRoomProps) => {
+    socket.emit('select_room', {
+      user_id: userId,
+      room_id: roomId,
+    }, ({room, is_on_chat}: SelectedRoomResponse) => {
+      setSelectedRoom(room);
+
+      previousMessage(roomId);
+    });
+  }
+
+  const previousMessage = (roomId: string) => {
+    api.get(`messages/${roomId}`).then((response) => {
+      console.log(response);
+
+      const messages = response.data.map((message: MessageProps) => {
+        return {
+          id: message.id,
+          user_id: message.user_id,
+          text: message.text,
+          created_at: message.created_at.substring(12, 16),
+        } as MessageProps
+      });
+
+      setMessages(messages);
+    })
+
+  } 
 
   return (
     <Container>
@@ -47,7 +104,11 @@ export const Chat: React.FC = () => {
         </div>
 
         {rooms.map((room) => (
-          <Groups>
+          <Groups
+            key={room.id}
+            groupId={room.id}
+            onClick={() => selectRoom({roomId: room.id, userId: user.id, socket })}
+          >
             <div className="left-icons">
               <div className="avatar">
                 <img
@@ -58,7 +119,7 @@ export const Chat: React.FC = () => {
 
               <div className="content-message-container">
                 <span className="content-username">{room.name}</span>
-                <span className="content-message">Last Message</span>
+                <span className="content-message">Default Message</span>
               </div>
             </div>
 
@@ -71,116 +132,54 @@ export const Chat: React.FC = () => {
           </Groups>
         ))}
       </SideBar>
+      
+      {selectedRoom && (
+        <div className="chat-group">
+          <TopBarGroup>
+            <div className="left-icons">
+              <div className="avatar">
+                <img
+                  src="https://avatars.githubusercontent.com/u/45568289?v=4"
+                  alt="User"
+                />
+              </div>
 
-      <div className="chat-group">
-        <TopBarGroup>
-          <div className="left-icons">
-            <div className="avatar">
-              <img
-                src="https://avatars.githubusercontent.com/u/45568289?v=4"
-                alt="User"
-              />
+              <div className="content-message-container">
+                <span className="content-group-name">{selectedRoom.name}</span>
+                <span className="content-message">Last group Message time</span>
+              </div>
             </div>
 
-            <div className="content-message-container">
-              <span className="content-group-name">Group name</span>
-              <span className="content-message">Last group Message time</span>
+            <div className="content-group-features">
+              <Button icon={FiSearch} />
+              <Button icon={FiMoreVertical} />
             </div>
-          </div>
+          </TopBarGroup>
 
-          <div className="content-group-features">
-            <Button icon={FiSearch} />
-            <Button icon={FiMoreVertical} />
-          </div>
-        </TopBarGroup>
+          <Background>
+            <Messages>
+              <div className="content-message">
+                <ConversationDate>
+                  <p>Today</p>
+                </ConversationDate>
 
-        <Background>
-          <Messages>
-            <div className="content-message">
-              <ConversationDate>
-                <p>Today</p>
-              </ConversationDate>
-
-              <Message messageOwnerId="1" userId="2" messageTime="22:40">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-              </Message>
-
-              <Message messageOwnerId="1" userId="1" messageTime="22:42">
-                Duis imperdiet bibendum massa vitae gravida. Pellentesque tempor
-                tincidunt leo, id vulputate odio convallis non.
-              </Message>
-
-              <Message messageOwnerId="1" userId="2" messageTime="22:42">
-                ed est ipsum, tempus eu magna vel, finibus volutpat purus. Nam
-                at ante eget mi varius ornare sit amet et justo. Nullam dui
-                ante, aliquam vitae feugiat non, venenatis eget libero
-              </Message>
-
-              <Message messageOwnerId="1" userId="1" messageTime="22:43">
-                Quisque vitae blandit augue. Aliquam a lectus tristique,
-                pharetra erat eu, vehicula mauris.
-              </Message>
-
-              <Message messageOwnerId="1" userId="1" messageTime="22:43">
-                Quisque vitae blandit augue. Aliquam a lectus tristique,
-                pharetra erat eu, vehicula mauris.
-              </Message>
-
-              <Message messageOwnerId="1" userId="1" messageTime="22:43">
-                Quisque vitae blandit augue. Aliquam a lectus tristique,
-                pharetra erat eu, vehicula mauris.
-              </Message>
-
-              <Message messageOwnerId="1" userId="1" messageTime="22:43">
-                Quisque vitae blandit augue. Aliquam a lectus tristique,
-                pharetra erat eu, vehicula mauris.
-              </Message>
-
-              <Message messageOwnerId="1" userId="1" messageTime="22:43">
-                Quisque vitae blandit augue. Aliquam a lectus tristique,
-                pharetra erat eu, vehicula mauris.
-              </Message>
-
-              <Message messageOwnerId="1" userId="1" messageTime="22:43">
-                Quisque vitae blandit augue. Aliquam a lectus tristique,
-                pharetra erat eu, vehicula mauris.
-              </Message>
-
-              <Message messageOwnerId="1" userId="1" messageTime="22:43">
-                Quisque vitae blandit augue. Aliquam a lectus tristique,
-                pharetra erat eu, vehicula mauris.
-              </Message>
-
-              <Message messageOwnerId="1" userId="1" messageTime="22:43">
-                Quisque vitae blandit augue. Aliquam a lectus tristique,
-                pharetra erat eu, vehicula mauris.
-              </Message>
-
-              <Message messageOwnerId="1" userId="1" messageTime="22:43">
-                Quisque vitae blandit augue. Aliquam a lectus tristique,
-                pharetra erat eu, vehicula mauris.
-              </Message>
-
-              <Message messageOwnerId="1" userId="1" messageTime="22:43">
-                Quisque vitae blandit augue. Aliquam a lectus tristique,
-                pharetra erat eu, vehicula mauris.
-              </Message>
-
-              <Message messageOwnerId="1" userId="1" messageTime="22:43">
-                Quisque vitae blandit augue. Aliquam a lectus tristique,
-                pharetra erat eu, vehicula mauris.
-              </Message>
-            </div>
-          </Messages>
-        </Background>
-        <InputMessages>
-          <InputWithButtons
-            leftIcon={HiOutlineEmojiHappy}
-            rightIcon={IoMdSend}
-            placeholder="Message"
-          />
-        </InputMessages>
-      </div>
+                {messages.map((message) => (
+                  <Message messageOwnerId={message.user_id} userId={user.id} messageTime={message.created_at}>
+                    {message.text}
+                  </Message>
+                ))}
+              </div>
+            </Messages>
+          </Background>
+          <InputMessages>
+            <InputWithButtons
+              leftIcon={HiOutlineEmojiHappy}
+              rightIcon={IoMdSend}
+              placeholder="Message"
+            />
+          </InputMessages>
+        </div>
+      )}
     </Container>
   );
 };
