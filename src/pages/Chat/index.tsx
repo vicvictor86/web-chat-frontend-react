@@ -1,10 +1,18 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { FiMenu, FiSearch, FiMoreVertical } from "react-icons/fi";
+import {
+  FiMenu,
+  FiSearch,
+  FiMoreVertical,
+  FiLock,
+  FiMessageCircle,
+  FiUsers,
+} from "react-icons/fi";
 import { HiOutlineEmojiHappy } from "react-icons/hi";
 import { IoMdSend } from "react-icons/io";
 import { Socket } from "socket.io-client";
+import { useForm, SubmitHandler } from "react-hook-form";
 
-import { InputWithButtons } from "../../components/Input";
+import { Input, InputWithButtons } from "../../components/Input";
 import { Message } from "../../components/Message";
 import { Button } from "../../components/Button";
 
@@ -20,7 +28,7 @@ import {
   ConversationDate,
   InputMessages,
 } from "../../components/Message/styles";
-import { Groups, SideBar, Container, TopBarGroup } from "./styles";
+import { Rooms, SideBar, Container, TopBarRoom, CreateRoom } from "./styles";
 
 interface Room {
   id: string;
@@ -28,6 +36,7 @@ interface Room {
   userLimit: number;
   isPrivate: boolean;
   userQuantity: number;
+  created_at: string;
 }
 
 interface SelectRoomProps {
@@ -50,10 +59,19 @@ interface MessageProps {
   created_at: string;
 }
 
+interface InputsNewRoom {
+  name: string;
+  password: string;
+  userLimit: number;
+}
+
 export const Chat: React.FC = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [selectedRoom, setSelectedRoom] = useState<Room | undefined>();
   const [messages, setMessages] = useState<MessageProps[]>([]);
+  const [createRoomVisibility, setCreateRoomVisibility] = useState<boolean>(false);
+
+  const { register, handleSubmit } = useForm<InputsNewRoom>();
 
   const { user } = useAuth();
 
@@ -61,7 +79,40 @@ export const Chat: React.FC = () => {
     api.get("rooms/").then((response) => {
       setRooms(response.data);
     });
-  });
+
+    socket.on("message", (message: MessageProps) => {
+      const newMessage = {
+        ...message,
+        created_at: message.created_at.substring(12, 16),
+      } as MessageProps;
+
+      setMessages([...messages, newMessage]);
+    });
+  }, []);
+
+  const onCreateRoomSubmit: SubmitHandler<InputsNewRoom> = async ({
+    name,
+    password,
+    userLimit,
+  }) => {
+    const response = await api.post(
+      "rooms",
+      {
+        name,
+        password,
+        userLimit,
+      },
+      {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("@Web-chat:token"),
+        },
+      }
+    );
+
+    const room = response.data as Room;
+
+    setRooms([...rooms, room]);
+  };
 
   const selectRoom = ({ roomId, userId, socket }: SelectRoomProps) => {
     socket.emit(
@@ -70,7 +121,7 @@ export const Chat: React.FC = () => {
         userId,
         roomId,
       },
-      ({ room, isOnChat }: SelectedRoomResponse) => {
+      ({ room }: SelectedRoomResponse) => {
         setSelectedRoom(room);
 
         previousMessage(roomId);
@@ -97,20 +148,18 @@ export const Chat: React.FC = () => {
     }
   }, [selectedRoom?.name, user.id]);
 
-  // socket.on("message", (message: MessageProps) => {
-  //   setMessages([...messages, message]);
-  // });
-
   const previousMessage = (roomId: string) => {
     api.get(`messages/${roomId}`).then((response) => {
-      const messages = response.data.map(({id, userId, text, created_at}: MessageProps) => {
-        return {
-          id,
-          userId,
-          text,
-          created_at: created_at.substring(12, 16),
-        } as MessageProps;
-      });
+      const messages = response.data.map(
+        ({ id, userId, text, created_at }: MessageProps) => {
+          return {
+            id,
+            userId,
+            text,
+            created_at: created_at.substring(12, 16),
+          } as MessageProps;
+        }
+      );
 
       setMessages(messages);
     });
@@ -127,10 +176,45 @@ export const Chat: React.FC = () => {
           </div>
         </div>
 
+        <div className="create-room-button">
+          <Button
+            onClick={() => setCreateRoomVisibility(!createRoomVisibility)}
+          >
+            Criar novo grupo
+          </Button>
+        </div>
+
+        <CreateRoom visibility={createRoomVisibility}>
+          <form onSubmit={handleSubmit(onCreateRoomSubmit)}>
+            <h1>Novo Grupo</h1>
+
+            <Input
+              leftIcon={FiMessageCircle}
+              placeholder="Nome do grupo"
+              {...register("name")}
+            />
+            <Input
+              leftIcon={FiLock}
+              type="password"
+              placeholder="Senha"
+              {...register("password")}
+            />
+            <Input
+              leftIcon={FiUsers}
+              type="number"
+              placeholder="Número máximo de usuários"
+              {...register("userLimit")}
+            />
+
+            <Button type="submit">Criar</Button>
+          </form>
+        </CreateRoom>
+
         {rooms.map((room) => (
-          <Groups
+          <Rooms
             key={room.id}
-            groupId={room.id}
+            selectedRoomId={selectedRoom && selectedRoom.id}
+            roomId={room.id}
             onClick={() =>
               selectRoom({ roomId: room.id, userId: user.id, socket })
             }
@@ -155,13 +239,13 @@ export const Chat: React.FC = () => {
                 <span>2</span>
               </div>
             </div>
-          </Groups>
+          </Rooms>
         ))}
       </SideBar>
 
       {selectedRoom && (
-        <div className="chat-group">
-          <TopBarGroup>
+        <div className="chat-room">
+          <TopBarRoom>
             <div className="left-icons">
               <div className="avatar">
                 <img
@@ -171,16 +255,16 @@ export const Chat: React.FC = () => {
               </div>
 
               <div className="content-message-container">
-                <span className="content-group-name">{selectedRoom.name}</span>
-                <span className="content-message">Last group Message time</span>
+                <span className="content-room-name">{selectedRoom.name}</span>
+                <span className="content-message">Last room Message time</span>
               </div>
             </div>
 
-            <div className="content-group-features">
+            <div className="content-room-features">
               <Button icon={FiSearch} />
               <Button icon={FiMoreVertical} />
             </div>
-          </TopBarGroup>
+          </TopBarRoom>
 
           <Background>
             <Messages>
@@ -191,11 +275,14 @@ export const Chat: React.FC = () => {
 
                 {messages.map((message) => (
                   <Message
+                    key={message.id}
                     messageOwnerId={message.userId}
                     userId={user.id}
                     messageTime={message.created_at}
                   >
-                    {message.text}
+                    {user.id}
+                    <br />
+                    {message.userId}
                   </Message>
                 ))}
               </div>

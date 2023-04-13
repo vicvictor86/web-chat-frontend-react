@@ -1,7 +1,12 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
-interface GroupsProps {
-  groupId: string;
+interface RoomsProps {
+  roomId: string;
+  selectedRoomId: string | undefined;
+}
+
+interface CreateRoomProps {
+  visibility: boolean;
 }
 
 export const Container = styled.div`
@@ -9,7 +14,7 @@ export const Container = styled.div`
   height: 100vh;
   display: flex;
 
-  div.chat-group {
+  div.chat-room {
     width: 100vw;
     height: 100vh;
     display: flex;
@@ -51,9 +56,14 @@ export const SideBar = styled.section`
       }
     }
   }
+
+  div.create-room-button {
+    display: flex;
+    justify-content: center;
+  }
 `;
 
-export const Groups = styled.div<GroupsProps>`
+export const Rooms = styled.div<RoomsProps>`
   display: flex;
   padding: 1.6rem;
   background: #ffffff;
@@ -123,9 +133,14 @@ export const Groups = styled.div<GroupsProps>`
     background: #F5F5F5;
     cursor: pointer;
   }
+
+  ${props => props.selectedRoomId === props.roomId && css`
+      background: #F5F5F5;
+    `
+  }
 `;
 
-export const TopBarGroup = styled.div`
+export const TopBarRoom = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -148,7 +163,7 @@ export const TopBarGroup = styled.div`
       flex-direction: column;
       margin-left: 1.6rem;
 
-      .content-group-name {
+      .content-room-name {
         color: #011627;
         font-weight: bold;
       }
@@ -160,9 +175,45 @@ export const TopBarGroup = styled.div`
     }
   }
 
-  div.content-group-features{
+  div.content-room-features{
     & > button:first-child {
       margin-right: 2.4rem;
     }
   }
+`;
+
+export const CreateRoom = styled.div<CreateRoomProps>`
+  visibility: hidden;
+  
+  form {
+    background-color: #F5F5F5;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+
+    width: 15%;
+    height: 40%;
+    position: absolute;
+    top: 8rem;
+    left: 12rem;
+    z-index: 1;
+
+    h1 {
+      color: #707991;
+    }
+
+    div {
+      width: 80%;
+
+      input {
+        margin-left: 0.4rem;
+      }
+    }
+  }
+
+  ${props => props.visibility && css`
+    visibility: visible;
+  `};
 `;
