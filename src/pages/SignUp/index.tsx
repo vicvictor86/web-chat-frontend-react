@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { FiLock, FiLogIn, FiUser } from "react-icons/fi";
+import { FiLock, FiLogIn, FiMail, FiUser } from "react-icons/fi";
 import { Button } from "../../components/Button";
 import { Input } from "../../components/Input";
 import { useForm, SubmitHandler } from "react-hook-form";
@@ -10,37 +10,44 @@ import { useHistory } from "react-router-dom";
 
 interface Inputs {
   username: string;
+  email: string;
   password: string;
 }
 
-export const SignIn: React.FC = () => {
+export const SignUp: React.FC = () => {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<Inputs>();
 
-  const { signIn } = useAuth();
+  const { signUp } = useAuth();
 
   const navigate = useHistory();
 
   const onSubmit: SubmitHandler<Inputs> = useCallback(
-    async ({ username, password }) => {
-      const signInSuccessful = await signIn({ username, password });
+    async ({ username, email, password }) => {
+      const signUpSuccessful = await signUp({ username, email, password });
 
-      if(signInSuccessful) {
+      if(signUpSuccessful) {
         return navigate.push('/chat');
       }
     },
-    [signIn, navigate]
+    [signUp, navigate]
   );
 
   return (
     <Container>
       <Content>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <h1>Faça seu login</h1>
+          <h1>Crie sua conta</h1>
 
+          <Input
+            rightIcon={FiMail}
+            colorIcon={"#FFFFFF"}
+            placeholder="Email"
+            {...register("email")}
+          />
           <Input
             rightIcon={FiUser}
             colorIcon={"#FFFFFF"}
@@ -56,14 +63,12 @@ export const SignIn: React.FC = () => {
           />
           {errors.username && <span>This field is required</span>}
 
-          <Button type="submit">Entrar</Button>
-
-          <a href="forgot">Esqueci minha senha</a>
+          <Button type="submit">Criar</Button>
         </form>
 
-        <Button onClick={() => navigate.push('/sign-up')}>
+        <Button color={"#ffffff"} onClick={() => navigate.push('/')}>
           <FiLogIn />
-          Criar Conta
+          Já tenho conta
         </Button>
       </Content>
     </Container>

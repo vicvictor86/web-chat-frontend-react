@@ -17,10 +17,17 @@ interface signInCredentials {
   password: string;
 }
 
+interface SignUpCredentials {
+  username: string;
+  email: string;
+  password: string;
+}
+
 interface AuthContextData {
   user: UserProps;
-  signIn(credentials: signInCredentials): Promise<void>;
+  signIn(credentials: signInCredentials): Promise<boolean>;
   signOut(): void;
+  signUp(credentials: SignUpCredentials): Promise<boolean>;
 }
 
 interface AuthProviderData {
@@ -43,11 +50,15 @@ export const AuthProvider: React.FC<AuthProviderData> = ({ children }) => {
     return {} as AuthState;
   });
 
-  const signIn = useCallback(async ({ username, password }: signInCredentials) => {
+  const signIn = useCallback(async ({ username, password }: signInCredentials): Promise<boolean> => {
     const response = await api.post("login", {
       username,
       password,
     });
+
+    if(response.status === 401) {
+      return false;
+    }
 
     const { token, user } = response.data;
 
@@ -57,6 +68,8 @@ export const AuthProvider: React.FC<AuthProviderData> = ({ children }) => {
     localStorage.setItem("@Web-chat:user", JSON.stringify(user));
 
     setData({ token, user });
+
+    return true;
   }, []);
 
   const signOut = useCallback(() => {
@@ -66,8 +79,24 @@ export const AuthProvider: React.FC<AuthProviderData> = ({ children }) => {
     setData({} as AuthState);
   }, []);
 
+  const signUp = useCallback(async ({email, password, username}: SignUpCredentials): Promise<boolean> => {
+    const response = await api.post("user/", {
+      username,
+      email,
+      password,
+    });
+
+    if(response.status === 400) {
+      return false;
+    }
+
+    const signInSuccessful = await signIn({username, password});
+
+    return signInSuccessful;
+  }, [signIn]);
+
   return (
-    <AuthContext.Provider value={{ user: data.user, signIn, signOut }}>
+    <AuthContext.Provider value={{ user: data.user, signIn, signOut, signUp }}>
       {children}
     </AuthContext.Provider>
   );

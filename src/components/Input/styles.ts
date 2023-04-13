@@ -1,9 +1,10 @@
 import { IconBaseProps } from "react-icons/lib";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 interface ContainerProps {
   leftIcon: React.ComponentType<IconBaseProps> | undefined;
   rightIcon: React.ComponentType<IconBaseProps> | undefined;
+  isFocused: boolean;
 }
 
 export const Container = styled.div<ContainerProps>`
@@ -38,4 +39,8 @@ export const Container = styled.div<ContainerProps>`
   & > button:last-child {
     margin-left: 1.6rem;
   }
+
+  ${(props) => props.isFocused && css`
+    background-color: red;
+  `}
 `;

@@ -12,7 +12,7 @@ import { IoMdSend } from "react-icons/io";
 import { Socket } from "socket.io-client";
 import { useForm, SubmitHandler } from "react-hook-form";
 
-import { Input, InputWithButtons } from "../../components/Input";
+import { Input } from "../../components/Input";
 import { Message } from "../../components/Message";
 import { Button } from "../../components/Button";
 
@@ -297,8 +297,9 @@ export const Chat: React.FC = () => {
               sendMessageHandler()
             }
           }}>
-            <InputWithButtons
+            <Input
               id="message-input"
+              hasButton={true}
               leftIcon={HiOutlineEmojiHappy}
               rightIcon={IoMdSend}
               onClickRightIcon={sendMessageHandler}
