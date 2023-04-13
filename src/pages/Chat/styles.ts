@@ -193,6 +193,7 @@ export const CreateRoom = styled.div<CreateRoomProps>`
     justify-content: center;
     gap: 2rem;
 
+    border-radius: 8%;
     width: 15%;
     height: 40%;
     position: absolute;

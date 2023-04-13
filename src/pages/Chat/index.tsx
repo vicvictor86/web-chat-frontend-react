@@ -76,10 +76,12 @@ export const Chat: React.FC = () => {
   const { user } = useAuth();
 
   useEffect(() => {
-    api.get("rooms/").then((response) => {
+    api.get(`rooms/user/${user.id}`).then((response) => {
       setRooms(response.data);
     });
+  }, [user.id]);
 
+  useEffect(() => {
     socket.on("message", (message: MessageProps) => {
       const newMessage = {
         ...message,
@@ -88,7 +90,11 @@ export const Chat: React.FC = () => {
 
       setMessages([...messages, newMessage]);
     });
-  }, []);
+
+    socket.on("app_error", (message: string) => {
+      console.log(message);
+    })
+  }, [messages]);
 
   const onCreateRoomSubmit: SubmitHandler<InputsNewRoom> = async ({
     name,
@@ -172,7 +178,7 @@ export const Chat: React.FC = () => {
           <Button icon={FiMenu} />
           <div className="search-bar">
             <FiSearch size={24} className="fi-search" />
-            <input placeholder="Search" type="text" />
+            <input placeholder="Pesquisar" type="text" />
           </div>
         </div>
 
@@ -280,15 +286,17 @@ export const Chat: React.FC = () => {
                     userId={user.id}
                     messageTime={message.created_at}
                   >
-                    {user.id}
-                    <br />
-                    {message.userId}
+                    {message.text}
                   </Message>
                 ))}
               </div>
             </Messages>
           </Background>
-          <InputMessages>
+          <InputMessages onKeyUp={(event) => {
+            if (event.key === 'Enter') {
+              sendMessageHandler()
+            }
+          }}>
             <InputWithButtons
               id="message-input"
               leftIcon={HiOutlineEmojiHappy}
