@@ -38,7 +38,7 @@ export const Content = styled.div`
     }
 
     div {
-      background-color: transparent;
+      background-color: rgba(255, 255, 255, 0.1);
     }
 
     div + div {

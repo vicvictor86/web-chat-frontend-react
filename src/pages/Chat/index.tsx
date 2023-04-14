@@ -6,6 +6,7 @@ import {
   FiLock,
   FiMessageCircle,
   FiUsers,
+  FiLogOut,
 } from "react-icons/fi";
 import { HiOutlineEmojiHappy } from "react-icons/hi";
 import { IoMdSend } from "react-icons/io";
@@ -18,7 +19,7 @@ import { Button } from "../../components/Button";
 
 import { api } from "../../services/api";
 
-import { useAuth } from "../../hooks/Auth";
+import { UserProps, useAuth } from "../../hooks/Auth";
 
 import { socket } from "../../socket";
 
@@ -28,7 +29,8 @@ import {
   ConversationDate,
   InputMessages,
 } from "../../components/Message/styles";
-import { Rooms, SideBar, Container, TopBarRoom, CreateRoom } from "./styles";
+import { Rooms, SideBar, Container, TopBarRoom, CreateRoom, SideBarMenu } from "./styles";
+import { useHistory } from "react-router-dom";
 
 interface Room {
   id: string;
@@ -65,15 +67,30 @@ interface InputsNewRoom {
   userLimit: number;
 }
 
+interface ConnectionUsersRooms {
+  id: string;
+  room: Room;
+  user: UserProps;
+  socketId: string;
+  isOnChat: boolean;
+}
+
 export const Chat: React.FC = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [selectedRoom, setSelectedRoom] = useState<Room | undefined>();
+  
   const [messages, setMessages] = useState<MessageProps[]>([]);
+  
   const [createRoomVisibility, setCreateRoomVisibility] = useState<boolean>(false);
+  const [sideBarMenuVisibility, setSideBarMenuVisibility] = useState<boolean>(false);
+
+  const [usersInRoom, setUsersInRoom] = useState<UserProps[]>([]);
 
   const { register, handleSubmit } = useForm<InputsNewRoom>();
 
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
+
+  const navigate = useHistory();
 
   useEffect(() => {
     api.get(`rooms/user/${user.id}`).then((response) => {
@@ -120,6 +137,12 @@ export const Chat: React.FC = () => {
     setRooms([...rooms, room]);
   };
 
+  const handleSignOut = useCallback(() => {
+    signOut();
+
+    navigate.push('/');
+  }, [signOut, navigate])
+
   const selectRoom = ({ roomId, userId, socket }: SelectRoomProps) => {
     socket.emit(
       "select_room",
@@ -133,6 +156,19 @@ export const Chat: React.FC = () => {
         previousMessage(roomId);
       }
     );
+
+    socket.emit("connections_room", {
+      roomId,
+    }, (data: ConnectionUsersRooms[]) => {
+      const usersInSelectedRoom = data.map((connections) => {
+        return {
+          id: connections.user.id,
+          username: connections.user.username,
+        } as UserProps;
+      });
+
+      setUsersInRoom(usersInSelectedRoom);
+    })
   };
 
   const sendMessageHandler = useCallback(() => {
@@ -171,11 +207,27 @@ export const Chat: React.FC = () => {
     });
   };
 
+  const showUsersInRoom = useCallback(() => {
+    let usersInRoomString = '';
+    usersInRoom.forEach((user) => (
+      usersInRoomString += `${user.username}, `
+    ));
+
+    usersInRoomString = usersInRoomString.substring(0, usersInRoomString.length - 2);
+
+    return usersInRoomString;
+  }, [usersInRoom]);
+
   return (
     <Container>
       <SideBar>
         <div className="content-search-bar">
-          <Button icon={FiMenu} />
+          <Button icon={FiMenu} onClick={() => setSideBarMenuVisibility(!sideBarMenuVisibility)} />
+          <SideBarMenu visibility={sideBarMenuVisibility}>
+            <div>
+              <Button icon={FiLogOut} onClick={handleSignOut}>SignOut</Button>
+            </div>
+          </SideBarMenu>
           <div className="search-bar">
             <FiSearch size={24} className="fi-search" />
             <input placeholder="Pesquisar" type="text" />
@@ -186,7 +238,7 @@ export const Chat: React.FC = () => {
           <Button
             onClick={() => setCreateRoomVisibility(!createRoomVisibility)}
           >
-            Criar novo grupo
+            <p>Criar novo grupo </p>
           </Button>
         </div>
 
@@ -262,7 +314,7 @@ export const Chat: React.FC = () => {
 
               <div className="content-message-container">
                 <span className="content-room-name">{selectedRoom.name}</span>
-                <span className="content-message">Last room Message time</span>
+                <span className="content-message">{showUsersInRoom()}</span>
               </div>
             </div>
 

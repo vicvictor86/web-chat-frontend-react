@@ -9,6 +9,10 @@ interface CreateRoomProps {
   visibility: boolean;
 }
 
+interface SideBarMenuProps {
+  visibility: boolean;
+}
+
 export const Container = styled.div`
   width: 100vw;
   height: 100vh;
@@ -60,6 +64,37 @@ export const SideBar = styled.section`
   div.create-room-button {
     display: flex;
     justify-content: center;
+  }
+`;
+
+export const SideBarMenu = styled.div<SideBarMenuProps>`
+  visibility: ${props => props.visibility ? 'visible' : 'hidden'};
+
+  position: relative;
+
+  div {
+    position: absolute;
+    top: 3rem;
+    left: -2.2rem;
+    height: 16rem;
+    width: 16rem;
+    background-color: #F5F5F5F2;
+    z-index: 1;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    button {
+      margin-top: 1.6rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      svg {
+        margin-right: 0.8rem;
+      }
+    }
   }
 `;
 
@@ -183,9 +218,10 @@ export const TopBarRoom = styled.div`
 `;
 
 export const CreateRoom = styled.div<CreateRoomProps>`
-  visibility: hidden;
+  visibility: ${props => props.visibility ? 'visible' : 'hidden'};
   
   form {
+    position: absolute;
     background-color: #F5F5F5;
     display: flex;
     flex-direction: column;
@@ -196,7 +232,6 @@ export const CreateRoom = styled.div<CreateRoomProps>`
     border-radius: 8%;
     width: 15%;
     height: 40%;
-    position: absolute;
     top: 8rem;
     left: 12rem;
     z-index: 1;
@@ -213,8 +248,4 @@ export const CreateRoom = styled.div<CreateRoomProps>`
       }
     }
   }
-
-  ${props => props.visibility && css`
-    visibility: visible;
-  `};
 `;
